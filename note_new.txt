@@ -1,0 +1,171 @@
+Container Log
+================================================
+Digunakan untuk mengetahui log dari aplikasi yang ada di dalam container
+Untuk melihat aplikasinya bisa menggunakan
+- docker container logs containerId/namaContainer
+Jika ingin melihat log secara realtime bisa menggunakan
+- docker container logs -f containerId/namaContainer
+Jadi -f ini akan menunggu log baru
+
+Container Exec
+================================================
+Digunakan untuk masuk kedalam container itu sendiri dan melakukan inspect kedalam containernya
+Jadi dengan masuk ke dalam containernya kita juga bisa mengakses aplikasinya secara langsung dari dalam containernya\
+Untuk masuk ke dalam container bisa mengeksekusi bash nya
+Caranya adalah:
+- docker container exec -i -t namacontainer /bin/bash
+-i  : argumennya interaktif, jadi apa yang diketikan akan dikirimkan ke command eksekusinya
+-t  : digunakan alokasi TTY atau terminal aksesnya
+Jadi kalo ingin masuk ke dalam containernya wajib menggunakan -i -t atau bisa langsung -it
+
+Container Port
+================================================
+Saat menjalankan container, container tersebut akan terisolasi dengan container lain maupun hostnya
+Biasanya sebuah aplikasi dalam container akan berjalan di port tertentu. Kita bisa melihat port yang digunakan ketika sudah menjalankan containernya
+Jika ingin mengakses aplikasi yang ada di dalam container ke hostnya bisa menggunakan forwarding
+cara untuk melakukannya adalah menggunakan:
+-  docker container create --name namaContainer --publis/-p porthost:portcontainer image:tag
+
+Container Environment Variable
+================================================
+Saat membuat aplikasi menggunakan env adalah teknik agar konfigurasi dari aplikasi bisa diubah secara dinamis
+Dengan ini jika ingin mengubah konfigurasi bisa mengubah langsung aja value dari env nya
+Docker container memiliki parameter untuk mengirimkan env ke dalam containernya
+Untuk menambahkannya bisa menambahkan --env atau -e ketika crate containernya
+Contohnya:
+--env KEY="value" image:tag
+Jika lebih dari 1 env bisa menambahkan lagi --env nya
+
+Container Stats
+================================================
+Jika ingin melihat detail dari penggunaan resource tiap container dengan cara menggunakan:
+- docker container stats
+Jika melihat resource dari os host hanya akan menampilkan keseluruhan penggunaan dari aplikasi dockernya
+
+Concat Command with antoher Command
+================================================
+docker stop $(docker ps --format "{{.Names}}")
+
+Container Resource Limit
+================================================
+Saat membuat container secara default akan menggunakan semua CPU dan Memory yang diberikan untuk docker untuk Mac dan Window
+Kalo pake linux semua resource dari host linux akan digunakan
+Ada baiknya ketika membuat container sekalian memberikan resource limit nya terhadap masing-masing container
+Hal ini ditujukan agar tidak ada container yang rakus dan memakan resource untuk container lain
+Saat sudah ditentukan limitnya tidak bisa diubah lagi, karena container bersifat immutable jadi harus dibuat ulang
+
+Memory
+untuk memberikan batasan memory bisa menggunakan --memory diikuti dengan angka memory yang diperbolehkan
+Sebagai contoh satuannya adalah sebagai berikut b (bytes), k (kilo bytes), m (mega bytes), atau g (giga bytes)
+
+CPU
+Cpu juga bisa diatur dengan menggunakan --cpus, valuenya diatur dengan format float atau double
+Sebagai contoh jika diberika 1.5 maka akan dibatasi menggunakan 1.5 core, jadi bisa desimal juga ga harus bilangan bulat
+
+Container Bind Mounts
+================================================
+Bind Mounts atau Binding Mounts adalah sistem sahring file atau folder yang terdapat di sistem host ke container di docker
+Ini berguna untuk mengirim konfigurasi dari luar container atau menyimpan data dari container ke host kita
+Misal menyimpan data database di container di folder file system
+Untuk menggunakan monting bisa menggunakan --mount ketika membuat container
+Isi dari parameter --mount memiliki aturan tersendiri
+Beberapa aturannya adalah :
+- type  : tipe miunt, bind dan volume
+- source : lokasi file di sistem hiostnya
+- destination   : lokasi di containernya
+- readonly  : Jika ditambahkan maka file atau foldernya hanya bisa dibaca di container dan tidak bisa diubah atau ditulis oleh containernya
+
+Contoh melakukan mounting
+docker container create --name namaContainer --mount "type=bind,source=folder,destination=folder,readonly<Optional>" image:tag
+
+Container Volume
+================================================
+Fitur bind mount sudah ada sejak docker pertama kali dibuat
+Saat ini docker volume lebih direkomendasikan
+Dimana volume ini dapat dilakukan management
+Volume sendiri ini adalah storage untuk menyimpan data, bedanya kalo bind mount disimpan di host, kalo volumen disimpan pada docker nya
+
+Saat membuat container data itu akan disimpan secara default di dalam volume
+Jika melihat docker volume, pasti akan banyak volume yang sudah terbuat walau belum pernah membuat secara manual sama sekali
+Untuk melihatnya dapat menggunakan docker volume ls
+Jadi nanti saat membuat container bisa membuat container tersebut membuat container yang sudah dibuat sebelumnya
+
+Volume yang sudah dibuat sebelumnya bisa digunakan pada container
+Keuntungan menggunakan volume adalah jika containernya dighapus maka data akan aman di volume
+Untuk menggunakan volume juga bisa menggunakan --mount, nmaun dengan type volume dan source nama volume
+
+Backup Volume
+================================================
+YANG PALING PENTING KETIKA MELAKUKAN BACKUP ADALAH MEMATIKAN CONTAINER YANG MENGGUNAKAN VOLUME TERSEBUT
+HAL INI AGAR SAAT BACKUP TIDAK ADA PERUBAHAN DATA YANG AKAN DIBACKUP
+
+Saat ini tidak ada cara otomatis untuk backup data secara otomatis
+Namun bisa memanfaatkan container untuk melakukan backup data yang ada di volume ke dalam archive seperti zip atau tar.gz
+
+Tahapan melakukan backup dengan container
+- Matikan container yang menggunakan volume yang ingin di backup
+- Buat container baru dengan dua mount, volume yang ingin di backup, dan bind folder dari sistem host
+- Lakukan backup menggunakan container dnegan mengarchive isi volumenya dan disimpan dalam bind mount folder
+- Isi file backup skrg sudah ada di folder host
+- Delete container yang digunakan untuk melakukan backup
+
+Namun ada cara yang lebih sederhana lagi dengan menjalankan container secara langsung dalam 1 command line
+Untuk menjalankan containernya langsung menggunakan run dan menggunakan --rm untuk menghapus containernya secara otomatis ketika perintahnya selesai dieksekusi
+
+Restore Volume
+================================================
+Saat ingin melakukan restore data backupnya ke volume boru untuk memastikan apakah data yang di backup itu corrupt atau tidak
+Tahapannya adalah:
+- Membuat volume baru untuk tempat resotrenya
+- Membuat container baru dengan dua mount
+- Melakukan restore menggunakan containernya dengan mengextract
+- Delete containernya
+- Buat container baru menggunakan volum hasil dari restore data backup sebelumnya
+
+Docker Network
+================================================
+Saat mmebuat container dalam docker, secara default container akan terisolasi satu sama lain
+Network ini dapat dimanfaatkan untuk membuat ajringan dalam docker dan bisa menghubungkan antar container
+Network ini sama seperti image atau container jadi bisa dilakukan management network seperti membaut dan menghapus
+
+Saat membuat network di docker harus menentukan drivernya
+- bridge    : network secara virtual dan memungkinakan container terkoneksi dan saling berkomunikasi
+- host      : membuat network yang sama dengan sistem hostnya, namun ini hanya jalan di linux os nya. Di os lain gabisa
+- none      : driver yang tidak bisa berkomunikasi samsek, ini adalah driver default yang digunakan ketika membuat network
+Sebenarnya masih banyak driver lainnya, namun 3 inilah yang paling popular
+
+Melihat Network
+Bisa menggunakan
+docker network ls
+
+untuk membaut network bisa menggunakan
+docker network create --drive namadriver namabetworkd
+
+Untuk menghapus menggunakan
+docker network rm namanetwork
+Jika network sedang digunakan oleh container maka network tidak dapat dihapus
+
+Container Network
+================================================
+Setelah membuat network, network tersebut bisa menambahkan container ke network tersbut dan containernya akan bisa saling berkomunkasi
+Container bisa mengakses container lain dengan nama hostname nya yaitu nama containernya
+
+Sebagai conoth disini akan dibuat container mongodb dan mongoexpress
+Untuk menambahkan container ke network bisa menggunakan:
+docker container create --name namacontainer --network namanetwork image:tag
+
+Menghapus container dari network bisa menggunakan perintah:
+docker network disconnect namanetwork namacontainer
+
+Jika containernya sudah terlanjur dibuat, bisa ditambahkan juga container tersebut ke network yang sudah ada dengan cara:
+docker network connect namanetwork namacontainer
+
+Inspect
+================================================
+Setelah emndownload image, atau mebuat network, volume, dan container kadang butuh melihat detail dari apa yang dibuat itu
+inspect metupakan keyword yang bisa digunakan disemua object docker seperti di volume, image, container, dan network
+
+Prune
+================================================
+Prune digunakan untuk membersihkan semua hal yang tidak digunakan secara otomatis dalam docker
+

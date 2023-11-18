@@ -1,0 +1,140 @@
+================================================
+DOCKER
+================================================
+
+Dockerfile
+================================================
+Cetakannya, kayak class lah
+
+Image
+================================================
+Ini hasil dari cetakannya atau bisa dibilang object nya lah ya
+
+Command
+  build       Build an image from a Dockerfile
+  history     Show the history of an image
+  import      Import the contents from a tarball to create a filesystem image
+  inspect     Display detailed information on one or more images
+  load        Load an image from a tar archive or STDIN
+	-i, read from tar archive file
+  ls          List images
+  prune       Remove unused images
+  pull        Download an image from a registry
+  push        Upload an image to a registry
+  rm          Remove one or more images
+  save        Save one or more images to a tar archive (streamed to STDOUT by default)
+	-o, output path with extension tar
+  tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+
+Container
+================================================
+Container ini adlaah hasil build dari image, jadi containernya akan berisi Image yang akan jalan.
+
+Bisa dikatakan ini adalah seperti memiliki laptop dengan OS linux, setiap container yang dimiliki adalah setiap laptop yang dimiliki
+
+Run command in running container
+
+Registry
+================================================
+Ini kayak github, jadi kodingannya bisa disimpan disini, ada access modifiernya
+
+Official docker images
+Ini adalah images resmi yang ada dalam docker registry, kita bisa membuat image yang dibuat sendiri menjadi official image, namun biasanya harus melalui beberapa proses administrasi agar disetujui
+
+Insecure Registry
+Ini sama kayak docker hub, digunakan untuk menyimpan registry, namun lebih fleksibel karena bisa menentukan tempat penyimpanannya, baik di on-premise, cloud, private atau public docker repository.
+
+Ada banyak private registry, namun yang dibahas sekarang adalah Nexus OSS
+Manfaat dari menggunakan insecure registry:
+	- Mengurangi bandwith karena repo akan distore di insecure registry, sehingga tidak perlu mendownload dari docker hub
+	- Mempercepat proses pull dan push karena insecure registry disimpan menggunakan proxy di local connection
+
+Materi Nexus OSS diskip dulu ges, pnjelasan di materinya belum terlalu paham
+
+HUB
+================================================
+Dependency repo yang bisa dicari di docker hub
+Misal ingin download java bisa dicari di docker hub untuk melihat versi java sama command line nya
+
+NETWORK
+================================================
+Menghubungkan 2 atau lebih container yang berbeda, misal container 1 adalah spring dan container 2 adalah database.
+
+Cara melakukannya adalah membuat network, caranya nanti CARI SENDIRI
+
+COMPOSE
+================================================
+Cara lain untuk menguhubungkan 2 atau lebih container menggunakan network yang sama
+
+VOLUME
+================================================
+Menghubungkan directory yang ada di host atau di laptop asli dengan container yang dibuat, caranya dengan menggunakan -v ${CD}:nama_folder_di_container nama_image command.
+
+Dengan demikian semua file yang ditambahkan baik dari host maupun dari container lain yang terhubung maka akan share penyimpanan tersebut
+
+TIPS
+================================================
+Kalo mau build project linux nya pake alpine aja ges
+
+EXEC
+================================================
+-d, --detach               Detached mode: run command in the background
+      --detach-keys string   Override the key sequence for detaching a
+                             container
+  -e, --env list             Set environment variables
+      --env-file list        Read in a file of environment variables
+  -i, --interactive          Keep STDIN open even if not attached
+      --privileged           Give extended privileges to the command
+  -t, --tty                  Allocate a pseudo-TTY
+  -u, --user string          Username or UID (format:
+                             "<name|uid>[:<group|gid>]")
+  -w, --workdir string       Working directory inside the container
+
+CMD
+================================================
+* -e : digunakan untuk menambhakan evironment variable pada container yang akan dijalankan
+
+* -d : menajalankan perintah di background
+
+* --name memberikan nama kepada container yang dijalankan, jika tidak diberikan maka namanya akan digenerate secara random
+
+* --p | --publish : digunakan untuk melakukan binding port dari container ke host
+
+* --network : digunakan untuk assign container ke network, sehingga antar container dapat terhubung
+
+* --lable : memberikan label ke container sebagai tanda
+
+* --volume : untuk melakukan binding file dari container ke local host
+
+* --filter : digunakan untuk melakukan filter kek where clause lahb ya
+
+& docker search : mencari image dari docker hub
+
+* docker ps : digunakan untuk melihat list container yang sedang berjalan
+
+* docker ps | findstr {docker_id} : sama kayak nyari pake filter sesuai id yang dimasukkan
+
+* docker start {docker_id} : menjalankan container yang sudah dibentuk
+
+* docker stop {docker_id} : menghentikan docker yang sedang berjalan
+
+* docker rm {docker_id} : menghapus container docker yang sudah dimiliki
+
+* docker images : melist docker image yang sudah pernah diinstall atau dimiliki
+
+* docker run : digunakan untuk membuat dan menjalankan container baru
+
+* docker exec
+
+* docker tag {nama_image_lama:versi} {nama_image_baru:versi}
+
+* docker pull {nama_image} : buat pull image yang udah ada di docker hub
+
+* docker push {nama_image/nama_repo:versi} : untuk push ke docker registry yang udah dipunya, tapi harus docker login dulu
+
+* docker login : untuk login ke docker registry yang dipunya
+
+* docker images --format "{{.Repository}}:{{.Tag}}" : Format list output
+
+
+
