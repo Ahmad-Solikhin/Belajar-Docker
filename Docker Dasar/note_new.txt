@@ -120,7 +120,7 @@ Tahapannya adalah:
 - Membuat container baru dengan dua mount
 - Melakukan restore menggunakan containernya dengan mengextract
 - Delete containernya
-- Buat container baru menggunakan volum hasil dari restore data backup sebelumnya
+- Buat container baru menggunakan volume hasil dari restore data backup sebelumnya
 
 Docker Network
 ================================================

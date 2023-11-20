@@ -13,3 +13,7 @@ docker rm -f nginxbackup
 
 #cara langsung, image yang digunakan adalah image yang akan langsung berhenti ketika dijalankan seperti os linux alpine dan ubuntu
 docker container run --rm --name alpine --mount "type=bind,source=C:\Users\Gayuh\Documents\Belajar Docker\backup,destination=/backup" --mount "type=volume,source=mongovolume,destination=/data" alpine:latest tar cvf /backup/backup2.tar.gz /data
+
+
+#Backup postgres online-test to another volume
+docker container run --rm --name alpine-backup --mount "type=bind,source=C:\Users\Gayuh\Documents\Belajar Docker\backup-postgres,destination=/backup" --mount "type=volume,source=17bf53b71551befdbe5fbd9d461a343743541af9f0ea560d1e0a7718bfd4c17a,destination=/data" alpine:latest tar cvf /backup/online-test.tar.gz /data
