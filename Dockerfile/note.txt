@@ -1,0 +1,220 @@
+Dockerfile
+================================================
+Pembuatan docker image sendiri biasanya menggunakan instruksi-instruksi yang bisa digunakan untuk membuat dockerimage di dalam dockerfile
+Jadi isi dari docker file sebenarnya adalah hanya text biasa yang berisi instruksi2x untuk membuat docker image
+
+"docker build" merupakan perintah untuk membuat docker image dari dockerfile yang sudah dibuat
+Biasanya docker build akan membuat image dengan nama random
+Namun hal ini bisa dicustom dengan menambahkan -t imageName:tag
+Sehingga contohnya adalah sebagai berikut
+docker build -t namaImage:tag folder-dockerfile
+Untuk pemberian nama bisa lebih dari 1, bisa menambahkan -t lagi setelah -t
+
+Dockerfile Format
+================================================
+dockerfile biasa disimpan dalam file bernama Dockerfile tanpa extension
+Walaupun sebenarnya nama dockerfile boleh dicustom tapi disarankan tidak diubah
+Berikut adalah instruksi dalam dockerfie:
+# Komentar
+INSTRUCTION arguments
+- # :   digunakan untuk menambahkan komentar
+- INSTRUCTION   : diawali dengan instruksi lalu argument nya, jadi instruction ini adalah perintah dalam docker. Ini case insensitive namun rekomendasi kapital
+- arguments : ini kayak parameter yang dibutuhkan pada instruksi sebelumnya, ada yang butuh 1, 2, dan seterusnya
+
+From Instruction
+================================================
+Saat membuat docker image, instruksi pertama adalah FROM
+Ini digunakan untuk mebuat image dari docker image yang sudah tersedia
+Misal ingin membuat image java, akan membuat docker image java yang sudah tersedia
+Jika tidak ingin, bisa buat dari scratch (kosongan) tapi biasanya jarang
+contohnya:
+FROM image:tag => FROM alpine:latest
+
+Run Instruction
+================================================
+Ini adalah instruksi untuk mengeksekusi perintah dalam image pada saat buld stage bukan pada saat container dijalankan
+Perintah run nanti akan dijalankan pada image basenya
+Jadi ini akan jalan ketika membuild docker imagenya saja sekali dan tidak akan dijalankan lagi
+
+
+Instruksi dari RUN ada 2 format:
+- RUN command
+- RUN["executeable", "argument", ...]
+
+Secara default output saat melakukan build tidak akan ditampilkan outputnya
+Jadi kalo mau lihat outputnya bisa menggunakan --progress=plain
+Docker juga menggunakan cached ketika menjalankan instruksi yang sama, jika tidak ingin menggunakan cache bisa menambahkan --no-cache
+
+Command Instruction
+================================================
+CMD atau COMMAND merupakan instruksi yang digunakan ketika docker container dijalankan
+Jadi saat containernya di start maka command ini akan otomatis dijalankan di dalam imagenya
+COMMAND ini tidak akan dijalankan ketika proses build
+Dalam dockerfile juga hanya bisa menambahkan satu command, jika menambahkan lebih dari 1 maka yang dieksekusi hanya yang paling akhir saja
+
+Format yang bisa digunakan pada command adalah sebagai berikut:
+- CMD command param param
+- CMD ["executable", "param", "param"]
+- CMD ["param", "param"], akan menggunakan executable ENTRY POINT
+
+Label Instruction
+================================================
+Ini adalah instruksi untuk menambahkan metadata ke docker image yang dibuat
+jadi ini cuma nambahin info tambahan tok gada efeknya ke image atau container yang dibuat nantinya
+
+Format yang bisa digunakan:
+- LABEL <key>=<value>
+- LABEL <key1>=<value1> <key2>=<value2> ...
+
+Add Instruction
+================================================
+Ini adalah instruksi untuk menambahkan file dari source (dari host maupun url) ke dalam folder destination di docker image
+Perintah ADD juga bisa mendeteksi file nya compress atau bukan
+Jika filenya compress maka akan secara otomatis di extract ke file destinationnya
+ADD juga bisa menambahkan banyak file sekaligus, jadi gaperlu satu2x ges
+Penambahan banyak file sekaligus menggunakan Pattern di Go-Lang. Jadi harus mempelajari pattern di go ges
+URL dokumentasi : https://pkg.go.dev/path/filepath#Match
+
+Format instruksi ADD:
+- ADD source destination : source bisa dari host atau url ges inget
+
+Contoh
+- ADD world.txt hello : menambah world.txt ke folder hello di docker
+
+Copy Instruction
+================================================
+Instruksi yang digunaka untuk menambahkan file dari source de dalam folder di docker
+Perbedaan copy dan add adalah kalo add bisa menambahkan file dari url atau file archive yang akan otomatis di extract
+namun jika menggunakan copy ya hanya menyalin file dari source di host ke source di dockernya
+Best practicenya adalah menggunakan copy bukan add, dan jika membutuhkan extract file bisa menggunakan instruksi RUN
+
+Format instruksi COPY:
+- COPY source destination
+
+contoh
+COPY world.txt hello
+COPY *.txt hello
+
+Jadi di copy juga bisa menggunakan matcher milik dari go lang
+
+.dockerignore
+================================================
+Saat melakukan ADD atau COPY maka akan dijalankan dulu .dockerignore jika ada
+Dan semua file atau folder dalam .dockerignore maka hal tersebut akan diabaikan
+.dockerignore juga mendukung regex menggunakan go
+Pokoknya ini mirip sih kek .gitignore
+
+Expose Instruction
+================================================
+Ini adalah isntruksi untuk memberitahu container akan listent ke port pada nomor dan protokol tertentu
+EXPOSE ini sebenernya tidak mempublish port sebenarnya, ini hanya sebagai dokumentasi port apa yang akan diexpose pada org yang nantinya akan menjalankan container ini
+
+Format
+- EXPOSE port : defaultnya menggunakan TCP
+- EXPOSE port/tcp
+- EXPOSE port/udp
+
+Environment Variable Instruction
+================================================
+ENV ini adalah instruksi untuk mengubah environemtn baik ketika di tahap buiild maupun jalan dalam container
+ENV yang sudah didefinisikan bisa digunakan kembali menggunakan ${NAMA_ENV}
+Environment yang dibuat akan disimpan dalam docker image dan bisa dilihat menggunakan inspect
+ENV juga bisa diganti ketika membuat cointainer dengan perintah --env key=value
+
+Format:
+- ENV key=value
+- ENV key1=value1 key2=value2
+
+Volume Instruction
+================================================
+VOLUME merupakan instruksi untuk membuat volume secara otomatis saat membuat container
+Semua file yang ada di volume akan secara otomatis akan dicopy ke Docker volume
+Ini cocok jika aplikasi menyimpan data di dalam file sehingga datanya aman berada di dalam volume
+
+Format untuk volume:
+- VOLUME /lokasi/folder
+- VOLUME /lokasi/folder1 /lokasi/folder1
+- VOLUME ["/lokasi/folder1", "/lokasi/folder", "..."]
+
+Working Directory Instruction
+================================================
+WORKDIR adalah instruksi unutk menentukan direktori folder untuk menjalankan instruksi RUN, CMD, ENTRYPOINT, COPY dan ADD
+Jika WORKDIR tidak ada, secara otomatis direktoriny akan dibuat secara otomatis
+Selanjutnya jika telah menentukan direktorynya dimana, maka directory itu akan menjalankan instruksi selanjutnya
+WORKDIR ini juga digunakan sebagai path untuk lokasi pertama kali ketika amsuk container
+
+Format:
+- WORKDIR /app  : direktorynya adalah /app karena ini absolute part
+- WORKDIR docker  : direktorynya adalah /app/docker karena ini relative path
+- WORKDIR /home/app  : direktorynya adalah /home/app
+
+User Instruction
+================================================
+USER adalah instruksi untuk mengubah user atau user group ketika docker image dijalankan
+Secara default user yang digunakan adalah root
+Namun ada beberapa kasus tidak ingin digunakan di root, ajdi bisa menggunakan instruksi ini
+
+Format:
+- USER <user> : Mengubah user
+- USER <user>:<group> : mengubah user dan user groupnya
+
+Sebelum mengubah user, pastikan dulu telah membuat user tersebut, jangan asal ganti user kalo gada gimana
+
+Argument Instruction
+================================================
+ARG merupakan instruksi yang digunakan untuk mendefinsikan varibale dan nanti bisa diubah menggunakan --build-args ketika melakukan build
+jadi ini hanya dipake ketika build
+Mirip kayak ENV tapi ini hanya digunakan ketika build, jadi masalah bikin file kayak kasus sebelumnya yang pake ENV bisa diatasin pake ARG ini
+Jadi misal gamau ngasih default value ke ENV tapi mau langsung diubah bisa menggunakan ARG
+
+Format :
+- ARG key : membuat argument value
+- ARG key=defaultvalue : mendefinisikan langsung default value jika tidak diberikan value argument
+
+Health Check Instruction
+================================================
+HEALTHCHECK adalah isntruksi yang digunakan untuk memberi tahu docker bagaimana untuk mengecek apakah container masih berjalan dengan baik atau tidak
+Secara default jika image dibuild tanpa menggunakan healthcheck maka tidak bisa mengecek kesehatan containernya
+Kalau include healthcheck seacar otomatis container akanmemiliki status health, dari awalnya bernilai starting, jika sukses menjadi helthy dan gagal menjadi unhealthy
+
+Format:
+- HEALTHCHECK NONE  : ini defaultnya disable healthcheck
+- HEALTHCHECK [OPTIONS] CMD command  : jadi akan dilakukan healthcheck sesuai command
+OPTIONS:
+    --interval=DURATION (default: 30s)
+    --timeout=DURATION (default: 30s)
+    --start-period=DURATION (default:0s)
+    --retries=N (default: 3)
+
+Entrypoint Instruction
+================================================
+ENTRYPOINT ini adalah instruksi untuk menentukan executeable file yang akan dijalankan oleh containernya
+Biasanya entrypoint ini berkaitan dengan CMD
+Saat membuat CMD tanpa executeable file. secara otomatis CMD akan menggunakan entrypoint
+
+Format :
+- ENTRYPOINT ["executable", "param1", "param2"]
+- ENTRYPOINT executable param1 param2
+Saat menggunakan CMD["param1", "param2"] maka param tersebut akan dikirim ke entrypoint
+
+Multi Stage Build
+================================================
+Saat membuat Dockerfile dari base image yang besar secaa otomatis imagenya akan menjadi besar
+Jadi usahakan menggunakan base image dengan ukuran yang kecil saja dan jangan terlalu banyak install fitur
+
+Solusi jika mendapatkan image yang sangat besar adalah menggunakan base image yang memiliki ukuran sangat kecil seperti linux alpine
+Jika menggunakan bahasa pemrograman yang bisa dicompile menjadi binary file jadi bisa dicompile dulu, tapi disarankan mengcompile di os yang sama
+
+Multi stage ini adalah membuat beberapa tahapan build stage
+Jadi FROM itu menandakan tahapan atau build stage di docker
+Build stage terakhir itu akan digunakan untuk dijadikan imagenya
+Jadi bisa memanfaatkan docker build stage untuk melakukan proses compile source code milik sendiri di linux
+
+
+
+
+
+
+
+
+
