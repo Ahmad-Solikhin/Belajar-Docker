@@ -1,0 +1,51 @@
+Docker Compose
+
+Merupakan tool untuk menjalankan container lebih dari 1
+Untuk menjalankannya bisa menggunakan konfigurasi file yaml
+Lalu dengan sebuah perintah bisa membuat semua docker container dan menjalankannya sekaligus dari file konfigurasi tersebut
+Dengan demikian tidak perlu lagi mengetikan perintah docker satu persatu ketika ingin membuat docker container di cmd
+
+Fitur dari docker compose
+Memiliki multiple isolated env dalam satu docker host / server, atau juga bisa dibilang project
+Jadi ini bisa digunakan sebagai benyak env dari docker compose
+Docker compose ini akan membuat container yang berubah sehingga akan dibuat ulang secara otomatis
+
+Kapan menggunakan docker compose
+- Membuat dev env, jika develope aplikasi yang butuh tools berbeda2x bisa menggunakan compose untuk melakukan setup nya
+- Automated Testing, kalo bikin automated testing kadang banyak yang harus dijalankan manual, jadi compose ini bisa membantu untuk otomatisasi proses setup
+- Deployment, compose ini juga bisa digunakan untuk deploy aplikasi. Jadi tidak perlu start manual aplikasi di server, cukup jalankan docker composenya
+
+Configuration file
+================================================================
+Biasanya file konfigurasi docker compose diberi nama docker-compose.yaml
+Secara default nama project defaultnya adalah nama folder lokasi docker-compose.yanl berada
+Versi konfigurasi docker-compose saat ini masih versi3 dan bisa dilihat versinya di dokumentasi
+https://docs.docker.com/compose/compose-file/compose-file-v3/
+
+Membuat Container
+================================================================
+Dengan docker compose bisa menggunakan configuration file dari docker-compose.yaml nya dan menentukan containernya disana
+Jadi untuk container berada di dalam attribute services dan diikuti key servicenya dan harus unique
+Best practicenya biasanya nama container disamakan namanya dengan key servicenya
+Jika sudah diatur semuanya di docker-compose.yaml nya bisa dibuat containernya dengan menggunakan perintah
+"docker compose create"
+Dengan demikian semua container yang ada di dalam docker-compose.yaml akan terbuat secara otomatis
+
+Project Name
+================================================================
+Secara default nama project docker-compose akan menggunakan nama folder lokasi docker-compose.yaml berada
+
+Extend Service
+================================================================
+Saat membuat aplikasi dengan docker, kadang memiliki profile yang berbeda2x seperti dev, prod, test, dan local
+Kalo kasusunya seperti ini mau tidak mau harus dibuat banyak file konfigurasinya untuk masing2x profile
+Dengan Extend Service ini bisa dilakukan merge untuk beberapa file konfigurasi sekaligus
+Jadi konsepnya adalah dibuat konfigurasi umum terlebih dahulu dan nanti akan di extend ke semua konfigurasi lainnya (kek Extend di inheritance)
+Dan untuk menjalankan Docker Compose nya bisa menggunakan perintah -f namafile.yaml jika ingin menggunakan nama file yang bukan docker-compose.yaml
+Jika lebih dari 1 file docker composenya bisa ditambahkan juga lebih dari 1
+
+Jadi kalo mau pake extend service jadi nanti pas docker compose langsung nyebutin 2 file seklaigus, file dasar atau file utama dan file extendnya seperti file dev dan prod
+Jadi untuk menjalankan docker compose bisa menggunakan docker compose -f nama-file-1.yaml -f nama-file-2.yaml "command"
+
+
+
